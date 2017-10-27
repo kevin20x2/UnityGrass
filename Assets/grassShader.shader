@@ -66,7 +66,7 @@ Shader "Custom/grassShader" {
 		{
 			float4 root = points[0].vertex;
 			float random = sin(UNITY_HALF_PI * frac(root.x) + UNITY_HALF_PI*frac(root.z));
-			_Width = _Width + (random / 50);
+			_Width = _Width + (random / 100);
 			_Height = _Height + (random / 5);
 			const unsigned int vertexcount = 12;
 			g2f v[12] = { init(),init(),init(),
@@ -77,6 +77,7 @@ Shader "Custom/grassShader" {
 			float currentVertexHeight = 0.0f;
 			for (uint i = 0; i < vertexcount; ++i)
 			{
+				float4 wind = float4(0, 0, 0, 0);
 				v[i].norm = float3(0, 0, 1);
 				if (fmod(i, 2) == 0)
 				{
@@ -91,8 +92,12 @@ Shader "Custom/grassShader" {
 					currentV += 2.0f/(vertexcount-2);
 					currentVertexHeight = currentV *_Height;
 				}
+				wind.x += 0.1*sin(_Time.y + root.x)*v[i].uv.y;
+				wind.y -= 0.2*sin(_Time.y*random + root.x)*v[i].uv.y;
+				wind.z += 0.1*sin(_Time.y + root.z)*v[i].uv.y;
+				wind *= random;
 
-				v[i].pos = UnityObjectToClipPos(v[i].pos);
+				v[i].pos = UnityObjectToClipPos(v[i].pos + wind);
 			}
 			for (uint j = 0; j < (vertexcount - 2); ++j)
 			{
